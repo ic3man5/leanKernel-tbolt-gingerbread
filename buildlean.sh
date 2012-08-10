@@ -1,7 +1,8 @@
 #!/bin/sh
 
-CPU_JOB_NUM=2
-TOOLCHAIN=/root/CodeSourcery/Sourcery_G++_Lite/bin/
+CPU_JOB_NUM=`grep 'processor' /proc/cpuinfo | wc -l`
+# https://sourcery.mentor.com/public/gnu_toolchain/arm-none-linux-gnueabi/arm-2012.03-57-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
+TOOLCHAIN=$HOME/dev/arm-2012.03/bin
 TOOLCHAIN_PREFIX=arm-none-linux-gnueabi-
 
 if [ $3 ]; then
@@ -21,7 +22,11 @@ else
 fi
 
 make -j$CPU_JOB_NUM ARCH=arm CROSS_COMPILE=$TOOLCHAIN/$TOOLCHAIN_PREFIX
-
+if [ $? -ne 0 ]; then
+	# Don't continue, if make fails...
+	echo -ne "\n\nWARNING: Make failed, stopping...\n\n"
+	exit;
+fi
 # make nsio module here for now
 cd nsio*
 make
